@@ -1,4 +1,4 @@
-name: Mirror to Private Repo
+name: Mirror to Private Repo with SSH
 
 on:
   push:
@@ -11,37 +11,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the source repo
-      - name: Checkout source repository
+      # Checkout source repo with full history
+      - name: Checkout source repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Step 2: Configure Git user
+      # Configure Git user
       - name: Configure Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-      # Step 3: Clean the PAT secret to remove newlines/spaces
-      - name: Clean PAT secret
-        id: clean_token
-        run: |
-          # Remove any trailing whitespace or newline characters from the PAT
-          CLEAN_PAT=$(echo "${{ secrets.TARGET_REPO_PAT }}" | tr -d '\r\n')
-          echo "::set-output name=cleaned_pat::$CLEAN_PAT"
+      # Setup SSH key
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.DEST_SSH_KEY }}
 
-      # Step 4: Test access to destination repo using cleaned PAT
-      - name: Test destination repo access
+      # Add SSH remote without trailing slash
+      - name: Add SSH remote
         run: |
-          git ls-remote "https://technolearn-cloud1:${{ steps.clean_token.outputs.cleaned_pat }}@github.com/technolearn-cloud1/item-mirror.git"
+          git remote add mirror git@github.com:technolearn-cloud1/item-mirror.git
 
-      # Step 5: Push all branches forcibly using cleaned PAT and no trailing slash
+      # Push all branches forcefully
       - name: Push all branches
         run: |
-          git push "https://technolearn-cloud1:${{ steps.clean_token.outputs.cleaned_pat }}@github.com/technolearn-cloud1/item-mirror.git" --all --force
+          git push mirror --all --force
 
-      # Step 6: Push all tags forcibly using cleaned PAT and no trailing slash
+      # Push all tags forcefully
       - name: Push all tags
         run: |
-          git push "https://technolearn-cloud1:${{ steps.clean_token.outputs.cleaned_pat }}@github.com/technolearn-cloud1/item-mirror.git" --tags --force
+          git push mirror --tags --force
