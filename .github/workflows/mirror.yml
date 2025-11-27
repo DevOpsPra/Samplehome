@@ -1,42 +1,34 @@
-name: Mirror 
+name: Mirror
 
-on: 
+on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  mirror: 
+  mirror:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source repo
         uses: actions/checkout@v4
-        with: 
-          fetch-depth: 0 # important for mirroring 
+        with:
+          fetch-depth: 0
 
-      - name: set up credentails
-        run: | 
+      - name: Configure Git
+        run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
       - name: Add target remote
         run: |
-           git remote add mirror https://technolearn-cloud1:${TARGET_TOKEN}@github.com/technolearn-cloud1/item-mirror.git
+          git remote add mirror https://${{ github.actor }}:${TARGET_TOKEN}@github.com/technolearn-cloud1/item-mirror.git
 
-      - name: push all branches
-        run: | 
-          git push mirror --tags --force
+      - name: Push branches
+        run: git push mirror --all --force
 
-      - name: push all tags
-        run: | 
-          git push mirror --tags --force
+      - name: Push tags
+        run: git push mirror --tags --force
 
     env:
-      TARGET_TOKEN: ${{ secrets.TARGET_REPO_PAT}}
-  
-  
-           
-          
-        
+      TARGET_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
