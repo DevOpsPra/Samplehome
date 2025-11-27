@@ -17,6 +17,8 @@ jobs:
         with:
           fetch-depth: 0  # Important to get full history for mirroring
 
+          
+
       # Step 2: Configure Git user
       - name: Configure Git
         run: |
@@ -25,7 +27,12 @@ jobs:
 
       - name: Debug TARGET_REPO_PAT length
         run: echo "PAT length:${{ secrets.TARGET_REPO_PAT }}" | wc -c
-    
+
+      - name: Check repo access with GitHub API
+        run: |
+          curl -H "Authorization: token ${{ secrets.TARGET_REPO_PAT }}" \
+               https://api.github.com/repos/technolearn-cloud1/item-mirror
+
 
       # Step 3: Test access to the destination repo
       - name: Test destination repo access
