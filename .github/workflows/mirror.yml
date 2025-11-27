@@ -20,20 +20,13 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-      - name: Add target remote
+      - name: Push all branches directly (no remote needed)
         run: |
-          git remote add mirror https://technolearn-cloud1:${TARGET_TOKEN}@github.com/technolearn-cloud1/item-mirror.git
+          git push https://technolearn-cloud1:${TARGET_TOKEN}@github.com/technolearn-cloud1/item-mirror.git --all --force
 
-      - name: Debug remotes
-        run: git remote -v
-
-      - name: Push all branches
+      - name: Push all tags directly
         run: |
-          git push mirror --all --force
-
-      - name: Push all tags
-        run: |
-          git push mirror --tags --force
+          git push https://technolearn-cloud1:${TARGET_TOKEN}@github.com/technolearn-cloud1/item-mirror.git --tags --force
 
     env:
       TARGET_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
