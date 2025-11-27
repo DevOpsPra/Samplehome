@@ -28,10 +28,11 @@ jobs:
       - name: Debug TARGET_REPO_PAT length
         run: echo "PAT length:${{ secrets.TARGET_REPO_PAT }}" | wc -c
 
-      - name: Check repo access with GitHub API
+
+      - name: Test repo access without trailing slash
         run: |
-          curl -H "Authorization: token ${{ secrets.TARGET_REPO_PAT }}" \
-               https://api.github.com/repos/technolearn-cloud1/item-mirror
+          git ls-remote "https://technolearn-cloud1:${{ secrets.TARGET_REPO_PAT }}@github.com/technolearn-cloud1/item-mirror.git"
+        
 
 
       # Step 3: Test access to the destination repo
