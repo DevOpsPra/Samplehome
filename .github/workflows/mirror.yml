@@ -15,9 +15,7 @@ jobs:
       - name: Checkout source repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Important to get full history for mirroring
-
-          
+          fetch-depth: 0
 
       # Step 2: Configure Git user
       - name: Configure Git
@@ -25,32 +23,25 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-      - name: Debug TARGET_REPO_PAT length
-        run: echo "PAT length:${{ secrets.TARGET_REPO_PAT }}" | wc -c
-
-
-      - name: Test repo access without trailing slash
+      # Step 3: Clean the PAT secret to remove newlines/spaces
+      - name: Clean PAT secret
+        id: clean_token
         run: |
-          git ls-remote "https://technolearn-cloud1:${{ secrets.TARGET_REPO_PAT }}@github.com/technolearn-cloud1/item-mirror.git"
-        
+          # Remove any trailing whitespace or newline characters from the PAT
+          CLEAN_PAT=$(echo "${{ secrets.TARGET_REPO_PAT }}" | tr -d '\r\n')
+          echo "::set-output name=cleaned_pat::$CLEAN_PAT"
 
-
-      # Step 3: Test access to the destination repo
+      # Step 4: Test access to destination repo using cleaned PAT
       - name: Test destination repo access
         run: |
-          echo "Checking access to destination repo..."
-          git ls-remote https://technolearn-cloud1:${{ secrets.TARGET_REPO_PAT }}@github.com/technolearn-cloud1/item-mirror.git
+          git ls-remote "https://technolearn-cloud1:${{ steps.clean_token.outputs.cleaned_pat }}@github.com/technolearn-cloud1/item-mirror.git"
 
-      # Step 4: Push all branches directly to destination repo
+      # Step 5: Push all branches forcibly using cleaned PAT and no trailing slash
       - name: Push all branches
         run: |
-          git push https://technolearn-cloud1:${{ secrets.TARGET_REPO_PAT }}@github.com/technolearn-cloud1/item-mirror.git --all --force
+          git push "https://technolearn-cloud1:${{ steps.clean_token.outputs.cleaned_pat }}@github.com/technolearn-cloud1/item-mirror.git" --all --force
 
-      # Step 5: Push all tags directly to destination repo
+      # Step 6: Push all tags forcibly using cleaned PAT and no trailing slash
       - name: Push all tags
         run: |
-          git push https://technolearn-cloud1:${{ secrets.TARGET_REPO_PAT }}@github.com/technolearn-cloud1/item-mirror.git --tags --force
-
-    env:
-      # PAT must belong to the owner of the destination repo and have write permissions
-      TARGET_REPO_PAT: ${{ secrets.TARGET_REPO_PAT }}
+          git push "https://technolearn-cloud1:${{ steps.clean_token.outputs.cleaned_pat }}@github.com/technolearn-cloud1/item-mirror.git" --tags --force
