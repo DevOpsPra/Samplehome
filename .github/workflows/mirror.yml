@@ -23,6 +23,10 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
+      - name: Debug TARGET_REPO_PAT length
+        run: echo "PAT length:${{ secrets.TARGET_REPO_PAT }}" | wc -c
+    
+
       # Step 3: Test access to the destination repo
       - name: Test destination repo access
         run: |
