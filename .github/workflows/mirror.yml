@@ -24,6 +24,9 @@ jobs:
         run: |
           git remote add mirror https://technolearn-cloud1:${TARGET_TOKEN}@github.com/technolearn-cloud1/item-mirror.git
 
+      - name: Debug remotes
+        run: git remote -v
+
       - name: Push all branches
         run: |
           git push mirror --all --force
