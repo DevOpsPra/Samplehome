@@ -22,13 +22,15 @@ jobs:
 
       - name: Add target remote
         run: |
-          git remote add mirror https://${{ github.actor }}:${TARGET_TOKEN}@github.com/technolearn-cloud1/item-mirror.git
+          git remote add mirror https://technolearn-cloud1:${TARGET_TOKEN}@github.com/technolearn-cloud1/item-mirror.git
 
-      - name: Push branches
-        run: git push mirror --all --force
+      - name: Push all branches
+        run: |
+          git push mirror --all --force
 
-      - name: Push tags
-        run: git push mirror --tags --force
+      - name: Push all tags
+        run: |
+          git push mirror --tags --force
 
     env:
       TARGET_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
